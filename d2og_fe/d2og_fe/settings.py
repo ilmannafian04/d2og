@@ -29,7 +29,8 @@ env = environ.Env(
     NPM=str,
 )
 
-env.read_env(os.path.join(BASE_DIR, '.env'))
+if os.path.exists(os.path.join(BASE_DIR, '.env')):
+    env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
