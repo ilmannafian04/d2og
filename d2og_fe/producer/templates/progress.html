@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Download progress{% endblock %}
+{% block body %}
+    <div class="container pt-3">
+        <h1 class="mb-3">Download progress</h1>
+        <h3 class="mb-3">Key: {{ routing_key }}</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>URL</th>
+                    <th>Download</th>
+                    <th>Compress</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for url in urls %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><a href="{{ url.url }}" download target="_blank">{{ url.url }}</a></td>
+                        <td>0.00%</td>
+                        {% if forloop.first %}
+                                <td rowspan="{{ forloop.revcounter }}" style="vertical-align: middle">0.00%</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
