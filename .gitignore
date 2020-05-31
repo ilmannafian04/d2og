@@ -1,6 +1,6 @@
 
-# Created by https://www.gitignore.io/api/node,django,python,pycharm+all,webstorm+all,visualstudiocode
-# Edit at https://www.gitignore.io/?templates=node,django,python,pycharm+all,webstorm+all,visualstudiocode
+# Created by https://www.gitignore.io/api/node,venv,django,python,pycharm+all,webstorm+all,visualstudiocode
+# Edit at https://www.gitignore.io/?templates=node,venv,django,python,pycharm+all,webstorm+all,visualstudiocode
 
 ### Django ###
 *.log
@@ -355,6 +355,18 @@ modules.xml
 
 # Pyre type checker
 
+### venv ###
+# Virtualenv
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+pyvenv.cfg
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pip-selfcheck.json
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -418,4 +430,4 @@ modules.xml
 
 # Sonarlint plugin
 
-# End of https://www.gitignore.io/api/node,django,python,pycharm+all,webstorm+all,visualstudiocode
+# End of https://www.gitignore.io/api/node,venv,django,python,pycharm+all,webstorm+all,visualstudiocode
