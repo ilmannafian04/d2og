@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+# noinspection PyPackageRequirements
 from environ import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -19,8 +20,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
     SECRET_KEY=str,
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    RMQ_USER=str,
+    RMQ_PASS=str,
+    RMQ_VHOST=str,
+    RMQ_HOST=(str, '127.0.0.1'),
+    RMQ_PORT=(int, 5672),
+    NPM=str,
 )
+
 env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
@@ -128,3 +136,15 @@ STATICFILES_DIRS = [
     'static',
     os.path.join(BASE_DIR, 'static')
 ]
+
+# Pika PubSub
+
+PUBSUB = {
+    'RMQ_USER': env('RMQ_USER'),
+    'RMQ_PASS': env('RMQ_PASS'),
+    'RMQ_HOST': env('RMQ_HOST'),
+    'RMQ_PORT': env('RMQ_PORT'),
+    'RMQ_VHOST': env('RMQ_VHOST'),
+}
+
+NPM = env('NPM')

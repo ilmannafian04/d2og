@@ -1,5 +1,7 @@
 import uuid
 
+import pika
+from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 
@@ -11,12 +13,25 @@ def index(request):
         return render(request, 'index.html')
     elif request.method == 'POST':
         if 'urls' in request.POST:
-            routing_key = uuid.uuid4()
+            routing_key = str(uuid.uuid4())
+            parameters = pika.ConnectionParameters(
+                settings.PUBSUB['RMQ_HOST'],
+                settings.PUBSUB['RMQ_PORT'],
+                settings.PUBSUB['RMQ_VHOST'],
+                pika.PlainCredentials(settings.PUBSUB['RMQ_USER'], settings.PUBSUB['RMQ_PASS'])
+            )
+            connection = pika.BlockingConnection(parameters)
+            channel = connection.channel()
+            channel.exchange_declare(exchange=settings.NPM, exchange_type='direct')
+            queue = channel.queue_declare(queue=routing_key)
+            channel.queue_bind(exchange=settings.NPM, queue=queue.method.queue)
             download = Download(key=routing_key)
             download.save()
             for url in request.POST.getlist('urls'):
                 url_entity = DownloadUrl(download=download, url=url)
                 url_entity.save()
+                channel.basic_publish(exchange=settings.NPM, routing_key=routing_key, body=url)
+            connection.close()
             return redirect('progress', key=routing_key)
         else:
             return HttpResponseBadRequest()
