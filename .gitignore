@@ -1,6 +1,6 @@
 
-# Created by https://www.gitignore.io/api/node,venv,django,python,pycharm+all,webstorm+all,visualstudiocode
-# Edit at https://www.gitignore.io/?templates=node,venv,django,python,pycharm+all,webstorm+all,visualstudiocode
+# Created by https://www.gitignore.io/api/node,venv,dotenv,django,python,pycharm+all,webstorm+all,visualstudiocode
+# Edit at https://www.gitignore.io/?templates=node,venv,dotenv,django,python,pycharm+all,webstorm+all,visualstudiocode
 
 ### Django ###
 *.log
@@ -119,6 +119,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+### dotenv ###
+.env
+
 ### Node ###
 # Logs
 logs
@@ -184,7 +187,6 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -430,4 +432,4 @@ pip-selfcheck.json
 
 # Sonarlint plugin
 
-# End of https://www.gitignore.io/api/node,venv,django,python,pycharm+all,webstorm+all,visualstudiocode
+# End of https://www.gitignore.io/api/node,venv,dotenv,django,python,pycharm+all,webstorm+all,visualstudiocode
