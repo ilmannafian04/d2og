@@ -23,8 +23,8 @@ global_channel.exchange_declare(f'{npm}D', 'direct')
 queue = global_channel.queue_declare(queue='download')
 global_channel.queue_bind(exchange=f'{npm}D', queue=queue.method.queue)
 global_channel.exchange_declare(f'{npm}T', 'topic')
-download_queue = global_channel.queue_declare(queue='progress.download')
-global_channel.queue_bind(exchange=f'{npm}T', queue=download_queue.method.queue)
+ipc_queue = global_channel.queue_declare(queue='progress.download')
+global_channel.queue_bind(exchange=f'{npm}T', queue=ipc_queue.method.queue)
 
 
 def get_filename(url, content_disposition):
@@ -39,7 +39,7 @@ def get_filename(url, content_disposition):
     return fname[0]
 
 
-def download_handler(channel, method_frame, header_frame, body):
+def download_handler(channel, method_frame, _, body):
     message = body.decode('utf-8')
     message = json.loads(message)
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
@@ -54,6 +54,8 @@ def download_handler(channel, method_frame, header_frame, body):
                 raise
     elif os.path.exists(os.path.join(download_folder, filename)):
         filename = f'{message["index"]}-{get_filename(message["url"], response.headers.get("content-disposition"))}'
+    download_queue = channel.queue_declare(queue=f'{message["key"]}.download')
+    channel.queue_bind(exchange=f'{npm}T', queue=download_queue.method.queue)
     with open(os.path.join(download_folder, filename), "wb") as file:
         filesize = response.headers.get('content-length')
         if filesize is None:
@@ -66,7 +68,7 @@ def download_handler(channel, method_frame, header_frame, body):
                 file.write(data)
                 channel.basic_publish(
                     f'{npm}T',
-                    'progress.download',
+                    f'{message["key"]}.download',
                     json.dumps(
                         {
                             'key': message['key'],
@@ -76,6 +78,11 @@ def download_handler(channel, method_frame, header_frame, body):
                         separators=(',', ':')
                     )
                 )
+        channel.basic_publish(
+            f'{npm}T',
+            'progress.download',
+            json.dumps({'key': message['key']}, separators=(',', ':'))
+        )
 
 
 global_channel.basic_consume('download', download_handler)
