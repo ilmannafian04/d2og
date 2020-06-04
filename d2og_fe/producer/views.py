@@ -29,12 +29,12 @@ def index(request):
             channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
             download = Download(key=routing_key)
             download.save()
-            for url in request.POST.getlist('download'):
+            for url in request.POST.getlist('urls'):
                 url_entity = DownloadUrl(download=download, url=url)
                 url_entity.save()
                 channel.basic_publish(
                     exchange=exchange_name,
-                    routing_key=routing_key,
+                    routing_key='download',
                     body=json.dumps({'key': routing_key, 'url': url}, separators=(',', ':'))
                 )
             connection.close()
