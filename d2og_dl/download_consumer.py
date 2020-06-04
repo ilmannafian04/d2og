@@ -63,6 +63,18 @@ def download_handler(channel, method_frame, _, body):
         else:
             downloaded = 0
             filesize = int(filesize)
+            channel.basic_publish(
+                f'{npm}T',
+                f'{message["key"]}.download',
+                json.dumps(
+                    {
+                        'key': message['key'],
+                        'index': message['index'],
+                        'progress': 100.0
+                    },
+                    separators=(',', ':')
+                )
+            )
             for data in response.iter_content(chunk_size=filesize // 1000):
                 downloaded += len(data)
                 file.write(data)
