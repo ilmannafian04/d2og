@@ -1,3 +1,4 @@
+import json
 import uuid
 
 import pika
@@ -22,15 +23,20 @@ def index(request):
             )
             connection = pika.BlockingConnection(parameters)
             channel = connection.channel()
-            channel.exchange_declare(exchange=settings.NPM, exchange_type='direct')
-            queue = channel.queue_declare(queue=routing_key)
-            channel.queue_bind(exchange=settings.NPM, queue=queue.method.queue)
+            exchange_name = f'{settings.NPM}D'
+            channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
+            queue = channel.queue_declare(queue='download')
+            channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
             download = Download(key=routing_key)
             download.save()
-            for url in request.POST.getlist('urls'):
+            for url in request.POST.getlist('download'):
                 url_entity = DownloadUrl(download=download, url=url)
                 url_entity.save()
-                channel.basic_publish(exchange=settings.NPM, routing_key=routing_key, body=url)
+                channel.basic_publish(
+                    exchange=exchange_name,
+                    routing_key=routing_key,
+                    body=json.dumps({'key': routing_key, 'url': url}, separators=(',', ':'))
+                )
             connection.close()
             return redirect('progress', key=routing_key)
         else:
