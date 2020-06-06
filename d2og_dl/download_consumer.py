@@ -60,9 +60,6 @@ def download_handler(channel, method_frame, _, body):
         filesize = response.headers.get('content-length')
         if filesize is None:
             file.write(response.content)
-        else:
-            downloaded = 0
-            filesize = int(filesize)
             channel.basic_publish(
                 f'{npm}T',
                 f'{message["key"]}.download',
@@ -75,6 +72,9 @@ def download_handler(channel, method_frame, _, body):
                     separators=(',', ':')
                 )
             )
+        else:
+            downloaded = 0
+            filesize = int(filesize)
             for data in response.iter_content(chunk_size=filesize // 1000):
                 downloaded += len(data)
                 file.write(data)
