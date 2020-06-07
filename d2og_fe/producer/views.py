@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from producer.models import Download, DownloadUrl
 
-routing_key = str(uuid.uuid4())
 parameters = pika.ConnectionParameters(
     settings.PUBSUB['RMQ_HOST'],
     settings.PUBSUB['RMQ_PORT'],
@@ -24,6 +23,7 @@ def index(request):
         return render(request, 'index.html')
     elif request.method == 'POST':
         if 'urls' in request.POST:
+            routing_key = str(uuid.uuid4())
             connection = pika.BlockingConnection(parameters)
             channel = connection.channel()
             channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
