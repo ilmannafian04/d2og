@@ -16,11 +16,22 @@ parameters = pika.ConnectionParameters(
     pika.PlainCredentials(settings.PUBSUB['RMQ_USER'], settings.PUBSUB['RMQ_PASS'])
 )
 exchange_name = f'{settings.NPM}D'
-
+placeholder_link = [
+    'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/arctichare.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/baboon.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/barbara.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/boat.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/cat.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/fruits.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/frymire.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/girl.png',
+    'https://homepages.cae.wisc.edu/~ece533/images/lena.png'
+]
 
 def index(request):
     if request.method == 'GET':
-        return render(request, 'index.html')
+        return render(request, 'index.html', {'placeholder': placeholder_link})
     elif request.method == 'POST':
         if 'urls' in request.POST:
             routing_key = str(uuid.uuid4())
