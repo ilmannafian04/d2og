@@ -16,8 +16,6 @@ parameters = pika.ConnectionParameters(
     settings.PUBSUB['RMQ_VHOST'],
     pika.PlainCredentials(settings.PUBSUB['RMQ_USER'], settings.PUBSUB['RMQ_PASS'])
 )
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
 exchange_name = f'{settings.NPM}D'
 
 
@@ -26,6 +24,8 @@ def index(request):
         return render(request, 'index.html')
     elif request.method == 'POST':
         if 'urls' in request.POST:
+            connection = pika.BlockingConnection(parameters)
+            channel = connection.channel()
             channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
             queue = channel.queue_declare(queue='download')
             channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
@@ -39,6 +39,7 @@ def index(request):
                     routing_key='download',
                     body=json.dumps({'key': routing_key, 'url': url, 'index': i}, separators=(',', ':'))
                 )
+            connection.close()
             return redirect('progress', key=routing_key)
         else:
             return HttpResponseBadRequest()
@@ -74,6 +75,8 @@ def download_progress(request, key, idx):
         url.save()
         urls = DownloadUrl.objects.filter(download=download, status=True)
         if len(urls) == 10:
+            connection = pika.BlockingConnection(parameters)
+            channel = connection.channel()
             channel.exchange_declare(f'{settings.NPM}T', exchange_type='topic')
             ipc_queue = channel.queue_declare(queue='progress.download')
             channel.queue_bind(exchange=f'{settings.NPM}T', queue=ipc_queue.method.queue)
@@ -82,6 +85,7 @@ def download_progress(request, key, idx):
                 'progress.download',
                 json.dumps({'key': key}, separators=(',', ':'))
             )
+            connection.close()
         return JsonResponse({'success': True})
     else:
         return HttpResponseNotFound()
