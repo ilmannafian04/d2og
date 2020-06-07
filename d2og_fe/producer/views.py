@@ -29,6 +29,7 @@ placeholder_link = [
     'https://homepages.cae.wisc.edu/~ece533/images/lena.png'
 ]
 
+
 def index(request):
     if request.method == 'GET':
         return render(request, 'index.html', {'placeholder': placeholder_link})

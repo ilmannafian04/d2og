@@ -1,3 +1,4 @@
+import json
 import os
 import signal
 import sys
@@ -18,14 +19,12 @@ connection = pika.BlockingConnection(
     )
 )
 channel = connection.channel()
-exchange_name = f'{os.environ.get("NPM")}T'
-channel.exchange_declare(exchange_name, 'topic')
-queue = channel.queue_declare(queue='progress.time')
-channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
+exchange_name = f'{os.environ.get("NPM")}_FANOUT'
+channel.exchange_declare(exchange_name, 'fanout')
 
 
 def publish_time():
-    channel.basic_publish(exchange_name, 'progress.time', str(time.time()))
+    channel.basic_publish(exchange_name, '', json.dumps({'time': str(time.time())}, separators=(',', ':')))
 
 
 def signal_handler(_, __):

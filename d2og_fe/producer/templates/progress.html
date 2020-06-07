@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Download progress{% endblock %}
+{% block title %}Download service{% endblock %}
 {% block body %}
     <div class="container pt-3">
-        <h1 class="mb-3">Download progress</h1>
+        <h1 class="mb-3">Service progress</h1>
         <h3 class="mb-3">Key: {{ routing_key }}</h3>
+        <span id="serviceDuration">Service has been running for <span id="timeDisplay">0 second</span> since <span
+                id="timeStart">now</span></span>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -21,7 +23,8 @@
                         <td><a href="{{ url.url }}" download target="_blank">{{ url.url }}</a></td>
                         <td id="download-{{ forloop.counter0 }}">00.00%</td>
                         {% if forloop.first %}
-                            <td rowspan="{{ forloop.revcounter }}" style="vertical-align: middle" id="compress">00.00%</td>
+                            <td rowspan="{{ forloop.revcounter }}" style="vertical-align: middle" id="compress">00.00%
+                            </td>
                         {% endif %}
                     </tr>
                 {% endfor %}
@@ -33,5 +36,6 @@
 {% block script %}
     <script src="{% static 'js/stomp.js' %}"></script>
     <script src="{% static 'js/sockjs.min.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/consumeProgress.js' %}"></script>
 {% endblock %}
