@@ -90,11 +90,11 @@ def download_handler(channel, method_frame, _, body):
                         separators=(',', ':')
                     )
                 )
-        channel.basic_publish(
-            f'{npm}T',
-            'progress.download',
-            json.dumps({'key': message['key']}, separators=(',', ':'))
-        )
+        if bool(os.environ.get('DEBUG')):
+            fe_url = '127.0.0.1:20065'
+        else:
+            fe_url = 'infralabs.cs.ui.ac.id:20065'
+        requests.post(f'http://{fe_url}/download/{message["key"]}/{message["index"]}')
 
 
 global_channel.basic_consume('download', download_handler)
