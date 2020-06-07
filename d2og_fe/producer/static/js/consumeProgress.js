@@ -12,9 +12,16 @@ const compressProgressHandler = (message) => {
     const tdElement = document.getElementById('compress');
     tdElement.innerText = `${progress.progress === 100 ? 100.0.toFixed(1) : progress.progress.toFixed(2)}%`
 };
+const secretUrlHandler = (message) => {
+    const secret = JSON.parse(message.body);
+    const downloadButton = document.getElementById('downloadButton');
+    downloadButton.setAttribute('href', `http://infralabs.cs.ui.ac.id:20068/${secret.fileName}?md5=${secret.md5}`);
+    downloadButton.classList.remove('disabled');
+};
 const connectHandler = () => {
     mqClient.subscribe(`${baseQueueName}download`, downloadProgressHandler);
     mqClient.subscribe(`${baseQueueName}compress`, compressProgressHandler);
+    mqClient.subscribe(`${baseQueueName}secret`, secretUrlHandler);
 };
 const errorHandler = (error) => console.error(error);
 if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') mqClient.debug = () => null;

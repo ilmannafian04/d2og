@@ -1,3 +1,6 @@
+import base64
+import errno
+import hashlib
 import json
 import os
 import types
@@ -25,13 +28,20 @@ global_channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
 
 def compress_handler(channel, method_frame, _, body):
     message = json.loads(body.decode('utf-8'))
-    folder_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'media',
-                                    message['key'])
+    media_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'media')
+    source_folder = os.path.join(media_folder, message['key'])
+    compressed_folder = os.path.join(media_folder, 'compressed')
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
     folder_size = sum(
-        os.path.getsize(os.path.join(folder_directory, f)) for f in os.listdir(folder_directory) if
-        os.path.isfile(os.path.join(folder_directory, f)))
-    if len([i for i in os.listdir(folder_directory) if os.path.isfile(os.path.join(folder_directory, i))]) == 10:
+        os.path.getsize(os.path.join(source_folder, f)) for f in os.listdir(source_folder) if
+        os.path.isfile(os.path.join(source_folder, f)))
+    if len([i for i in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, i))]) == 10:
+        if not os.path.exists(compressed_folder):
+            try:
+                os.makedirs(compressed_folder)
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
         zip_name = f'{message["key"]}.zip'
         compress_queue = channel.queue_declare(queue=f'{message["key"]}.compress')
         channel.queue_bind(exchange=exchange_name, queue=compress_queue.method.queue)
@@ -53,11 +63,29 @@ def compress_handler(channel, method_frame, _, body):
             return original_write(buf)
 
         progress.bytes = 0
-        with zipfile.ZipFile(os.path.join(folder_directory, zip_name), 'w') as _zip:
+        with zipfile.ZipFile(os.path.join(compressed_folder, zip_name), 'w') as _zip:
             _zip.fp.write = types.MethodType(partial(progress, folder_size, _zip.fp.write), _zip.fp)
-            for filename in os.listdir(folder_directory):
+            for filename in os.listdir(source_folder):
                 if filename != zip_name:
-                    _zip.write(os.path.join(folder_directory, filename), filename)
+                    _zip.write(os.path.join(source_folder, filename), filename)
+        url_queue = channel.queue_declare(queue=f'{message["key"]}.secret')
+        channel.queue_bind(exchange=exchange_name, queue=url_queue.method.queue)
+        url = f'/{zip_name}'
+        secure_link = f'{url} {os.environ.get("SECRET_KEY")}'.encode('utf-8')
+        link_hash = hashlib.md5(secure_link).digest()
+        base64_hash = base64.urlsafe_b64encode(link_hash)
+        channel.basic_publish(
+            exchange_name,
+            f'{message["key"]}.secret',
+            json.dumps(
+                {
+                    'key': message['key'],
+                    'fileName': zip_name,
+                    'md5': base64_hash.decode('utf-8').rstrip('=')
+                },
+                separators=(',', ':')
+            )
+        )
 
 
 global_channel.basic_consume('progress.download', compress_handler)
