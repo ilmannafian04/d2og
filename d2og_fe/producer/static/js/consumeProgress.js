@@ -17,5 +17,5 @@ const connectHandler = () => {
     mqClient.subscribe(`${baseQueueName}compress`, compressProgressHandler);
 };
 const errorHandler = (error) => console.error(error);
-if (window.location.hostname !== 'localhost' || window.location.hostname !== '127.0.0.1') mqClient.debug = () => null;
+if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') mqClient.debug = () => null;
 mqClient.connect('0806444524', '0806444524', connectHandler, errorHandler, '/0806444524');
