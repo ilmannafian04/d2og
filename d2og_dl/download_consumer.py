@@ -75,7 +75,7 @@ def download_handler(channel, method_frame, _, body):
         else:
             downloaded = 0
             filesize = int(filesize)
-            for data in response.iter_content(chunk_size=filesize // 1000):
+            for data in response.iter_content(chunk_size=filesize // 100):
                 downloaded += len(data)
                 file.write(data)
                 channel.basic_publish(
