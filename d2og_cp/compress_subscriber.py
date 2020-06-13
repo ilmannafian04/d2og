@@ -10,7 +10,8 @@ from functools import partial
 import pika
 from dotenv import load_dotenv
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, '..', '.env'))
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
         os.environ.get('RMQ_HOST'),
@@ -28,7 +29,7 @@ global_channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
 
 def compress_handler(channel, method_frame, _, body):
     message = json.loads(body.decode('utf-8'))
-    media_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'media')
+    media_folder = os.path.join(BASE_DIR, 'media')
     source_folder = os.path.join(media_folder, message['key'])
     compressed_folder = os.path.join(media_folder, 'compressed')
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
@@ -71,7 +72,7 @@ def compress_handler(channel, method_frame, _, body):
         url_queue = channel.queue_declare(queue=f'{message["key"]}.secret')
         channel.queue_bind(exchange=exchange_name, queue=url_queue.method.queue)
         url = f'/{zip_name}'
-        secure_link = f'{url} {os.environ.get("SECRET_KEY")}'.encode('utf-8')
+        secure_link = f'{url} {os.environ.get("NGINX_SECRET_KEY")}'.encode('utf-8')
         link_hash = hashlib.md5(secure_link).digest()
         base64_hash = base64.urlsafe_b64encode(link_hash)
         channel.basic_publish(

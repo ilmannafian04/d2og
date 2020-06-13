@@ -19,7 +19,7 @@ from environ import environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(
-    SECRET_KEY=str,
+    DJANGO_SECRET_KEY=str,
     DEBUG=(bool, False),
     RMQ_USER=str,
     RMQ_PASS=str,
@@ -29,14 +29,14 @@ env = environ.Env(
     NPM=str,
 )
 
-if os.path.exists(os.path.join(BASE_DIR, '.env')):
-    env.read_env(os.path.join(BASE_DIR, '.env'))
+if os.path.exists(os.path.join(BASE_DIR, '..', '.env')):
+    env.read_env(os.path.join(BASE_DIR, '..', '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
