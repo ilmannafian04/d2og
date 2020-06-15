@@ -31,7 +31,7 @@ global_channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)
 
 def compress_handler(channel, method_frame, _, body):
     message = json.loads(body.decode('utf-8'))
-    media_folder = os.path.join(BASE_DIR, 'media')
+    media_folder = os.path.join(BASE_DIR, '..', 'media')
     source_folder = os.path.join(media_folder, message['key'])
     compressed_folder = os.path.join(media_folder, 'compressed')
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
