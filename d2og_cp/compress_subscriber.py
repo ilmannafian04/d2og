@@ -86,7 +86,8 @@ def compress_handler(channel, method_frame, _, body):
                 {
                     'key': message['key'],
                     'fileName': zip_name,
-                    'md5': base64_hash.decode('utf-8').rstrip('=')
+                    'md5': base64_hash.decode('utf-8').rstrip('='),
+                    'expires': expiry
                 },
                 separators=(',', ':')
             )

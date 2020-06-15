@@ -19,7 +19,7 @@ const secretUrlHandler = (message) => {
     isFinished = true;
     const secret = JSON.parse(message.body);
     const downloadButton = document.getElementById('downloadButton');
-    downloadButton.setAttribute('href', `http://infralabs.cs.ui.ac.id:20068/${secret.fileName}?md5=${secret.md5}`);
+    downloadButton.setAttribute('href', `http://infralabs.cs.ui.ac.id:20068/${secret.fileName}?md5=${secret.md5}&expires=${secret.expires}`);
     downloadButton.classList.remove('disabled');
     const momentDuration = moment.duration(currentTime.diff(startTime));
     const timeDuration = document.getElementById('serviceDuration');
