@@ -16,7 +16,6 @@ const compressProgressHandler = (message) => {
     tdElement.innerText = `${progress.progress === 100 ? 100.0.toFixed(1) : progress.progress.toFixed(2)}%`
 };
 const secretUrlHandler = (message) => {
-    isFinished = true;
     const secret = JSON.parse(message.body);
     const downloadButton = document.getElementById('downloadButton');
     downloadButton.setAttribute('href', `http://infralabs.cs.ui.ac.id:20068/${secret.fileName}?md5=${secret.md5}&expires=${secret.expires}`);
@@ -32,6 +31,9 @@ const secretUrlHandler = (message) => {
         timeDuration.innerText += ` ${momentDuration.minutes()} minute${momentDuration.minutes() > 1 ? 's' : ''}`;
     }
     timeDuration.innerText += ` ${moreThanOneMinute ? ' and' : ''}${momentDuration.seconds()} second${momentDuration.seconds() > 1 ? 's' : ''}.`;
+    const helperEl = document.getElementById('downloadHelper');
+    helperEl.innerText = `Your download will expire at ${moment.unix(secret.expires).format('dddd, MMMM Do YYYY, h:mm:ss a')} (server time)`
+    isFinished = true;
 };
 const timeHandler = (message) => {
     const time = JSON.parse(message.body);
