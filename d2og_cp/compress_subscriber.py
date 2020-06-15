@@ -1,4 +1,6 @@
 import base64
+import calendar
+import datetime
 import errno
 import hashlib
 import json
@@ -72,7 +74,9 @@ def compress_handler(channel, method_frame, _, body):
         url_queue = channel.queue_declare(queue=f'{message["key"]}.secret')
         channel.queue_bind(exchange=exchange_name, queue=url_queue.method.queue)
         url = f'/{zip_name}'
-        secure_link = f'{url} {os.environ.get("NGINX_SECRET_KEY")}'.encode('utf-8')
+        future = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+        expiry = calendar.timegm(future.timetuple())
+        secure_link = f'{url} {os.environ.get("NGINX_SECRET_KEY")} {expiry}'.encode('utf-8')
         link_hash = hashlib.md5(secure_link).digest()
         base64_hash = base64.urlsafe_b64encode(link_hash)
         channel.basic_publish(
