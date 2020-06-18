@@ -23,7 +23,7 @@ connection = pika.BlockingConnection(
     )
 )
 global_channel = connection.channel()
-exchange_name = f'{os.environ.get("NPM")}T'
+exchange_name = f'{os.environ.get("NPM")}_TOPIC'
 global_channel.exchange_declare(exchange_name, 'topic')
 queue = global_channel.queue_declare('progress.download')
 global_channel.queue_bind(exchange=exchange_name, queue=queue.method.queue)

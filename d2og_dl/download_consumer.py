@@ -20,12 +20,12 @@ connection = pika.BlockingConnection(
 )
 global_channel = connection.channel()
 npm = os.environ.get("NPM")
-global_channel.exchange_declare(f'{npm}D', 'direct')
+global_channel.exchange_declare(f'{npm}_DIRECT', 'direct')
 queue = global_channel.queue_declare(queue='download')
-global_channel.queue_bind(exchange=f'{npm}D', queue=queue.method.queue)
-global_channel.exchange_declare(f'{npm}T', 'topic')
+global_channel.queue_bind(exchange=f'{npm}_DIRECT', queue=queue.method.queue)
+global_channel.exchange_declare(f'{npm}_TOPIC', 'topic')
 ipc_queue = global_channel.queue_declare(queue='progress.download')
-global_channel.queue_bind(exchange=f'{npm}T', queue=ipc_queue.method.queue)
+global_channel.queue_bind(exchange=f'{npm}_TOPIC', queue=ipc_queue.method.queue)
 
 
 def get_filename(url, content_disposition):
@@ -56,13 +56,13 @@ def download_handler(channel, method_frame, _, body):
     elif os.path.exists(os.path.join(download_folder, filename)):
         filename = f'{message["index"]}-{get_filename(message["url"], response.headers.get("content-disposition"))}'
     download_queue = channel.queue_declare(queue=f'{message["key"]}.download')
-    channel.queue_bind(exchange=f'{npm}T', queue=download_queue.method.queue)
+    channel.queue_bind(exchange=f'{npm}_TOPIC', queue=download_queue.method.queue)
     with open(os.path.join(download_folder, filename), "wb") as file:
         filesize = response.headers.get('content-length')
         if filesize is None:
             file.write(response.content)
             channel.basic_publish(
-                f'{npm}T',
+                f'{npm}_TOPIC',
                 f'{message["key"]}.download',
                 json.dumps(
                     {
@@ -80,7 +80,7 @@ def download_handler(channel, method_frame, _, body):
                 downloaded += len(data)
                 file.write(data)
                 channel.basic_publish(
-                    f'{npm}T',
+                    f'{npm}_TOPIC',
                     f'{message["key"]}.download',
                     json.dumps(
                         {

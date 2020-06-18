@@ -1,7 +1,7 @@
 const socket = new SockJS('http://152.118.148.95:15674/stomp');
 const mqClient = Stomp.over(socket);
 const path = window.location.pathname;
-const baseQueueName = `/exchange/1706067626T/${path.substring(path.lastIndexOf('/') + 1)}.`;
+const baseQueueName = `/exchange/1706067626_TOPIC/${path.substring(path.lastIndexOf('/') + 1)}.`;
 let startTime = null;
 let currentTime = moment();
 let isFinished = false;

@@ -15,7 +15,7 @@ parameters = pika.ConnectionParameters(
     settings.PUBSUB['RMQ_VHOST'],
     pika.PlainCredentials(settings.PUBSUB['RMQ_USER'], settings.PUBSUB['RMQ_PASS'])
 )
-exchange_name = f'{settings.NPM}D'
+exchange_name = f'{settings.NPM}_DIRECT'
 placeholder_link = [
     'https://homepages.cae.wisc.edu/~ece533/images/airplane.png',
     'https://homepages.cae.wisc.edu/~ece533/images/arctichare.png',
@@ -89,11 +89,11 @@ def download_progress(request, key, idx):
         if len(urls) == 10:
             connection = pika.BlockingConnection(parameters)
             channel = connection.channel()
-            channel.exchange_declare(f'{settings.NPM}T', exchange_type='topic')
+            channel.exchange_declare(f'{settings.NPM}_TOPIC', exchange_type='topic')
             ipc_queue = channel.queue_declare(queue='progress.download')
-            channel.queue_bind(exchange=f'{settings.NPM}T', queue=ipc_queue.method.queue)
+            channel.queue_bind(exchange=f'{settings.NPM}_TOPIC', queue=ipc_queue.method.queue)
             channel.basic_publish(
-                f'{settings.NPM}T',
+                f'{settings.NPM}_TOPIC',
                 'progress.download',
                 json.dumps({'key': key}, separators=(',', ':'))
             )
