@@ -55,7 +55,7 @@ def download_handler(channel, method_frame, _, body):
                 raise
     elif os.path.exists(os.path.join(download_folder, filename)):
         filename = f'{message["index"]}-{get_filename(message["url"], response.headers.get("content-disposition"))}'
-    download_queue = channel.queue_declare(queue=f'{message["key"]}.download')
+    download_queue = channel.queue_declare(queue=f'{message["key"]}.download', auto_delete=True)
     channel.queue_bind(exchange=f'{npm}_TOPIC', queue=download_queue.method.queue)
     with open(os.path.join(download_folder, filename), "wb") as file:
         filesize = response.headers.get('content-length')

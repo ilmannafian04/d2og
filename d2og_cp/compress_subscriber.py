@@ -46,7 +46,7 @@ def compress_handler(channel, method_frame, _, body):
                 if exc.errno != errno.EEXIST:
                     raise
         zip_name = f'{message["key"]}.zip'
-        compress_queue = channel.queue_declare(queue=f'{message["key"]}.compress')
+        compress_queue = channel.queue_declare(queue=f'{message["key"]}.compress', auto_delete=True)
         channel.queue_bind(exchange=exchange_name, queue=compress_queue.method.queue)
 
         def progress(total_size, original_write, _, buf):
@@ -71,7 +71,7 @@ def compress_handler(channel, method_frame, _, body):
             for filename in os.listdir(source_folder):
                 if filename != zip_name:
                     _zip.write(os.path.join(source_folder, filename), filename)
-        url_queue = channel.queue_declare(queue=f'{message["key"]}.secret')
+        url_queue = channel.queue_declare(queue=f'{message["key"]}.secret', auto_delete=True)
         channel.queue_bind(exchange=exchange_name, queue=url_queue.method.queue)
         url = f'/{zip_name}'
         future = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
